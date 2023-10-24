@@ -13,7 +13,13 @@ import {
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Customer } from './entities/customer.entity';
 import { Authguard } from 'src/auth/auth.guard';
 import { Pagination } from 'nestjs-typeorm-paginate';
@@ -24,6 +30,14 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 
+  @ApiOkResponse({
+    status: 200,
+    description: 'Customers list retrieved',
+  })
+  @ApiForbiddenResponse({
+    status: 403,
+    description: 'Forbidden resource(s)',
+  })
   @Get()
   async findAll(
     @Req() request: any,
@@ -35,6 +49,18 @@ export class CustomersController {
     return this.customersService.findAll({ page, limit });
   }
 
+  @ApiOkResponse({
+    status: 200,
+    description: 'Single customer list retrieved',
+  })
+  @ApiForbiddenResponse({
+    status: 403,
+    description: 'Forbidden resource(s)',
+  })
+  @ApiNotFoundResponse({
+    status: 404,
+    description: 'Resource not found',
+  })
   @Get(':id')
   async findOne(
     @Req() request: any,
@@ -44,6 +70,14 @@ export class CustomersController {
     return this.customersService.findOne(+id);
   }
 
+  @ApiOkResponse({
+    status: 200,
+    description: 'customer updated',
+  })
+  @ApiForbiddenResponse({
+    status: 403,
+    description: 'Forbidden resource(s)',
+  })
   @Patch(':id')
   update(
     @Req() request: any,

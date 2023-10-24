@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   UseGuards,
   Req,
   ForbiddenException,
@@ -16,11 +15,17 @@ import {
 import { WalletsService } from './wallets.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { UpdateWalletDto } from './dto/update-wallet.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { DeposinInWalletDto } from './dto/wallet-deposit.dto';
+import {
+  ApiBearerAuth,
+  ApiConflictResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Authguard } from 'src/auth/auth.guard';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { Wallet } from './entities/wallet.entity';
+import { DirectDepositDto } from './wallet.pb';
 @ApiTags('Wallets')
 @Controller('wallets')
 @ApiBearerAuth('access_token')
@@ -28,6 +33,18 @@ import { Wallet } from './entities/wallet.entity';
 export class WalletsController {
   constructor(private readonly walletsService: WalletsService) {}
 
+  @ApiOkResponse({
+    status: 200,
+    description: 'wallets list retrieved',
+  })
+  @ApiForbiddenResponse({
+    status: 403,
+    description: 'Forbidden resource(s)',
+  })
+  @ApiConflictResponse({
+    status: 409,
+    description: 'Customer already has a wallet',
+  })
   @Post()
   async create(@Req() request: any, @Body() createWalletDto: CreateWalletDto) {
     if (request.user?.id !== createWalletDto.customerId)
@@ -35,6 +52,14 @@ export class WalletsController {
     return await this.walletsService.create(createWalletDto);
   }
 
+  @ApiOkResponse({
+    status: 200,
+    description: 'Customers list retrieved',
+  })
+  @ApiForbiddenResponse({
+    status: 403,
+    description: 'Forbidden resource(s)',
+  })
   @Get()
   findAll(
     @Req() request: any,
@@ -46,19 +71,52 @@ export class WalletsController {
     return this.walletsService.findAll({ page, limit });
   }
 
+  @ApiOkResponse({
+    status: 200,
+    description: 'Single wallet retrieved',
+  })
+  @ApiForbiddenResponse({
+    status: 403,
+    description: 'Forbidden resource(s)',
+  })
   @Get(':id')
-  findOne(@Req() request: any, @Param('id') id: string) {
+  async findOne(@Req() request: any, @Param('id') id: string) {
     if (request.user.walletId !== Number(id)) throw new ForbiddenException();
-    return this.walletsService.findOne(+id);
+    return await this.walletsService.findOne(+id);
   }
 
+  @ApiOkResponse({
+    status: 200,
+    description: 'single wallet updated',
+  })
+  @ApiForbiddenResponse({
+    status: 403,
+    description: 'Forbidden resource(s)',
+  })
+  @Patch('direct-deposit/:id')
+  async deposit(
+    @Req() request: any,
+    @Param('id') id: string,
+    @Body() directDepositDto: DirectDepositDto,
+  ) {
+    if (request.user.walletId !== Number(id)) throw new ForbiddenException();
+    return await this.walletsService.deposit(+id, directDepositDto);
+  }
+  @ApiOkResponse({
+    status: 200,
+    description: 'single wallet updated',
+  })
+  @ApiForbiddenResponse({
+    status: 403,
+    description: 'Forbidden resource(s)',
+  })
   @Patch(':id')
-  update(
+  async update(
     @Req() request: any,
     @Param('id') id: string,
     @Body() updateWalletDto: UpdateWalletDto,
   ) {
     if (request.user.walletId !== Number(id)) throw new ForbiddenException();
-    return this.walletsService.update(+id, updateWalletDto);
+    return await this.walletsService.update(+id, updateWalletDto);
   }
 }

@@ -1,7 +1,6 @@
 import {
   ConflictException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Customer } from 'src/customers/entities/customer.entity';
@@ -53,7 +52,7 @@ export class AuthService {
     });
 
     if (!customer) {
-      throw new NotFoundException(INVALID_CREDENTIALS);
+      throw new UnauthorizedException(INVALID_CREDENTIALS);
     }
 
     const passwordMatch = await bcrypt.compare(password, customer.password);

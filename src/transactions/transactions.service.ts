@@ -60,6 +60,8 @@ export class TransactionsService {
       verificationCodeExpiresAt: new Date(currentDate.getTime() + 5 * 60000), //verification code adds 5 minutes over the time the record is created
     };
 
+    // logic to send verification code to customer phone or email here
+
     walletExists.balance = newBalance;
     await this.walletsService.update(walletExists.id, walletExists);
     return await this.transactionRepository.save(data);

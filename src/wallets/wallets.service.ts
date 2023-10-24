@@ -20,6 +20,7 @@ import {
   USER_HAS_WALLET,
   WALLET_NOT_FOUND,
 } from 'src/shared/constants/ErrorMessages';
+import { DirectDepositDto } from './wallet.pb';
 
 @Injectable()
 export class WalletsService {
@@ -56,7 +57,7 @@ export class WalletsService {
    * @param options paginarion options
    * @returns paginated wallets
    */
-  findAll(options: IPaginationOptions): Promise<Pagination<Wallet>> {
+  async findAll(options: IPaginationOptions): Promise<Pagination<Wallet>> {
     const queryBuilder = this.walletsRepository.createQueryBuilder('c');
     queryBuilder.orderBy('c.id', 'DESC');
 
@@ -80,6 +81,14 @@ export class WalletsService {
     return wallet;
   }
 
+  async deposit(id: number, directDepositDto: DirectDepositDto) {
+    const wallet = await this.findOne(id);
+    const currentBalance = Number(wallet.balance);
+    const depositAmount = Number(directDepositDto.amount);
+    const newBalance = currentBalance + depositAmount;
+    wallet.balance = newBalance;
+    return await this.walletsRepository.save(wallet);
+  }
   /**
    * function to update a single wallet
    * @param id id of the wallet to be updated
