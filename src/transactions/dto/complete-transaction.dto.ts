@@ -1,11 +1,8 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateWalletDto {
+export class CompleteTransactionDto {
   @IsNotEmpty()
   @ApiProperty()
-  customerId: number;
-
-  @ApiProperty()
-  balance?: number;
+  verificationCode: string;
 }

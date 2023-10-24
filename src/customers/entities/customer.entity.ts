@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import { Wallet } from 'src/wallets/entities/wallet.entity';
 import {
   BaseEntity,
   Column,
@@ -6,6 +7,8 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('customers')
@@ -31,12 +34,12 @@ export class Customer extends BaseEntity {
 
   @Column()
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
 
   @Column()
   @UpdateDateColumn()
-  updated_at: Date;
+  updatedAt: Date;
 
-  @Column('timestamp with time zone', { name: 'deleted_at', nullable: true })
-  deletedAt: Date | null;
+  @OneToOne(() => Wallet, (wallet) => wallet.customer)
+  wallet: Wallet;
 }
