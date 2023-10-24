@@ -8,10 +8,12 @@ import { WalletsModule } from './wallets/wallets.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
-
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronjobsModule } from './cronjobs/cronjobs.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -30,6 +32,7 @@ import { AuthModule } from './auth/auth.module';
     WalletsModule,
     TransactionsModule,
     AuthModule,
+    CronjobsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

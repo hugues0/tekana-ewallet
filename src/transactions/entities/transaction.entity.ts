@@ -6,11 +6,9 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne,
-  JoinColumn,
   ManyToOne,
 } from 'typeorm';
-@Entity()
+@Entity('transactions')
 export class Transaction extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id: number;
@@ -28,9 +26,9 @@ export class Transaction extends BaseEntity {
   @Column('enum', {
     name: 'type',
     nullable: false,
-    enum: ['deposit', 'transfer'],
+    enum: ['transfer'],
   })
-  public type: 'deposit' | 'transfer';
+  public type: string;
 
   @Column({ nullable: false })
   public verificationCode: string;

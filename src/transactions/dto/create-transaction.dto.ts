@@ -12,9 +12,5 @@ export class CreateTransactionDto {
 
   @IsNotEmpty()
   @ApiProperty()
-  type: 'transfer' | 'deposit';
-
-  @IsNotEmpty()
-  @ApiProperty()
   receiverWalletId: number;
 }

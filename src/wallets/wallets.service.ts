@@ -30,6 +30,12 @@ export class WalletsService {
     private readonly customersService: CustomersService,
   ) {}
 
+  /**
+   * creation of a wallet
+   * @param createWalletDto constains customerId to cross check request.user
+   * and customerId to attach to wallet
+   * @returns created wallet
+   */
   async create(createWalletDto: CreateWalletDto) {
     const { customerId } = createWalletDto;
     const customerExists = await this.customersService.findOne(customerId);
@@ -45,6 +51,11 @@ export class WalletsService {
     });
   }
 
+  /**
+   * get all wallets paginated and ordered by walletId in descending order
+   * @param options paginarion options
+   * @returns paginated wallets
+   */
   findAll(options: IPaginationOptions): Promise<Pagination<Wallet>> {
     const queryBuilder = this.walletsRepository.createQueryBuilder('c');
     queryBuilder.orderBy('c.id', 'DESC');
@@ -52,6 +63,11 @@ export class WalletsService {
     return paginate<Wallet>(queryBuilder, options);
   }
 
+  /**
+   * function to retrieve a single wallet
+   * @param id id of the customer to be retrieved
+   * @returns a wallet with his/her attached user
+   */
   async findOne(id: number): Promise<Wallet> {
     const wallet = await this.walletsRepository.findOne({
       where: {
@@ -64,6 +80,12 @@ export class WalletsService {
     return wallet;
   }
 
+  /**
+   * function to update a single wallet
+   * @param id id of the wallet to be updated
+   * @param updateWalletDto new data to update wallet with
+   * @returns a wallet with his/her attached user
+   */
   async update(id: number, updateWalletDto: UpdateWalletDto) {
     const wallet = await this.findOne(id);
 

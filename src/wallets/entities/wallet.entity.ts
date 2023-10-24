@@ -12,7 +12,7 @@ import {
   OneToMany,
 } from 'typeorm';
 
-@Entity()
+@Entity('wallets')
 export class Wallet extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id: number;

@@ -18,12 +18,22 @@ export class CustomersService {
     private customersRepository: Repository<Customer>,
   ) {}
 
+  /**
+   * get all customers paginated and ordered by customerId in descending order
+   * @param options paginarion options
+   * @returns paginated customers
+   */
   async findAll(options: IPaginationOptions): Promise<Pagination<Customer>> {
     const queryBuilder = this.customersRepository.createQueryBuilder('c');
     queryBuilder.orderBy('c.id', 'DESC');
     return paginate<Customer>(queryBuilder, options);
   }
 
+  /**
+   * function to retrieve a single customer
+   * @param id id of the customer to be retrieved
+   * @returns a customer with his/her attached wallet (if any)
+   */
   async findOne(id: number): Promise<Customer> {
     const customer = await this.customersRepository.findOne({
       where: {

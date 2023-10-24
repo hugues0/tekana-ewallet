@@ -1,7 +1,7 @@
 export const CUSTOMER_NOT_FOUND_MESSAGE =
   'Customer with provided id could not be found';
 export const EMAIL_IN_USE = 'Email already in use';
-export const INVALID_CREDENTIALS = 'Invalid credentials';
+export const INVALID_CREDENTIALS = 'Invalid or uknown credentials';
 export const USER_HAS_WALLET = 'User already has a wallet';
 export const WALLET_NOT_FOUND = 'Wallet with provided id could not be found';
 export const INSUFFICIENT_FUNDS =
@@ -16,3 +16,4 @@ export const INVALID_TRANS_CODE =
 
 export const NOT_FOUND_TRANSACTION_ID =
   'transaction with provided ID does not exists';
+

@@ -8,7 +8,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
-  JoinColumn,
 } from 'typeorm';
 
 @Entity('customers')
@@ -32,7 +31,7 @@ export class Customer extends BaseEntity {
   @Column({ type: 'varchar', length: 100 })
   password: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: false, default: 'regular' })
+  @Column({ type: 'varchar', length: 50, nullable: false, default: 'standard' })
   public role: string;
 
   @Column()

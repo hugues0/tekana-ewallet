@@ -14,7 +14,6 @@ import { JwtService } from '@nestjs/jwt';
 import {
   EMAIL_IN_USE,
   INVALID_CREDENTIALS,
-  CUSTOMER_NOT_FOUND_MESSAGE,
 } from 'src/shared/constants/ErrorMessages';
 @Injectable()
 export class AuthService {
@@ -24,17 +23,27 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  /**
+   * Registering a new customer
+   * @param customer object containing customer info
+   * @returns created customer after some checks
+   */
   async register(customer: CreateCustomerDto): Promise<Customer> {
     const { email, password } = customer;
     const customerExists = await this.customersRepository.findOne({
       where: { email },
     });
-    if (customerExists) throw new ConflictException(EMAIL_IN_USE);
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (customerExists) throw new ConflictException(EMAIL_IN_USE); // check if email is not taken by another user
+    const hashedPassword = await bcrypt.hash(password, 10); // hash password with bcrypt and 10 salt rounds
     customer.password = hashedPassword;
     return await this.customersRepository.save(customer);
   }
 
+  /**
+   * login route hadnler
+   * @param credentials amail and password of the user trying to login
+   * @returns issues token when credentials are valid
+   */
   async login(credentials: LoginDto) {
     const { email, password } = credentials;
 
@@ -44,7 +53,7 @@ export class AuthService {
     });
 
     if (!customer) {
-      throw new NotFoundException(CUSTOMER_NOT_FOUND_MESSAGE);
+      throw new NotFoundException(INVALID_CREDENTIALS);
     }
 
     const passwordMatch = await bcrypt.compare(password, customer.password);
@@ -66,6 +75,11 @@ export class AuthService {
     };
   }
 
+  /**
+   * validate token
+   * @param token JWT token to validate
+   * @returns bool if token is valid
+   */
   validateToken(token: string) {
     return this.jwtService.verify(token, {
       secret: process.env.JWT_SECRET,
