@@ -10,7 +10,16 @@ import { Wallet } from './entities/wallet.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CustomersService } from 'src/customers/customers.service';
-import { DeposinInWalletDto } from './dto/wallet-deposit.dto';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
+import {
+  CUSTOMER_NOT_FOUND_MESSAGE,
+  USER_HAS_WALLET,
+  WALLET_NOT_FOUND,
+} from 'src/shared/constants/ErrorMessages';
 
 @Injectable()
 export class WalletsService {
@@ -26,10 +35,9 @@ export class WalletsService {
     const customerExists = await this.customersService.findOne(customerId);
 
     if (!customerExists)
-      throw new NotFoundException('User with provided id could not be found');
+      throw new NotFoundException(CUSTOMER_NOT_FOUND_MESSAGE);
 
-    if (customerExists.wallet)
-      throw new ConflictException('User already has a wallet');
+    if (customerExists.wallet) throw new ConflictException(USER_HAS_WALLET);
 
     return await this.walletsRepository.save({
       ...createWalletDto,
@@ -37,19 +45,21 @@ export class WalletsService {
     });
   }
 
-  findAll() {
-    return `This action returns all wallets`;
+  findAll(options: IPaginationOptions): Promise<Pagination<Wallet>> {
+    const queryBuilder = this.walletsRepository.createQueryBuilder('c');
+    queryBuilder.orderBy('c.id', 'DESC');
+
+    return paginate<Wallet>(queryBuilder, options);
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<Wallet> {
     const wallet = await this.walletsRepository.findOne({
       where: {
         id,
       },
       relations: ['customer'],
     });
-    if (!wallet)
-      throw new NotFoundException('Wallet with provided id could not be found');
+    if (!wallet) throw new NotFoundException(WALLET_NOT_FOUND);
 
     return wallet;
   }
@@ -58,7 +68,7 @@ export class WalletsService {
     const wallet = await this.findOne(id);
 
     if (!wallet) {
-      throw new NotFoundException(`Wallet with ID ${id} not found`);
+      throw new NotFoundException(WALLET_NOT_FOUND);
     }
     const updatedWallet = await this.walletsRepository.update(
       id,
@@ -66,9 +76,5 @@ export class WalletsService {
     );
 
     return updatedWallet;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} wallet`;
   }
 }

@@ -4,6 +4,12 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Customer } from './entities/customer.entity';
 import { Repository } from 'typeorm';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
+import { CUSTOMER_NOT_FOUND_MESSAGE } from 'src/shared/constants/ErrorMessages';
 
 @Injectable()
 export class CustomersService {
@@ -12,8 +18,10 @@ export class CustomersService {
     private customersRepository: Repository<Customer>,
   ) {}
 
-  async findAll(): Promise<Customer[]> {
-    return await this.customersRepository.find({ relations: ['wallet'] });
+  async findAll(options: IPaginationOptions): Promise<Pagination<Customer>> {
+    const queryBuilder = this.customersRepository.createQueryBuilder('c');
+    queryBuilder.orderBy('c.id', 'DESC');
+    return paginate<Customer>(queryBuilder, options);
   }
 
   async findOne(id: number): Promise<Customer> {
@@ -23,17 +31,12 @@ export class CustomersService {
       },
       relations: ['wallet'],
     });
-    if (!customer)
-      throw new NotFoundException('User with provided id could not be found');
+    if (!customer) throw new NotFoundException(CUSTOMER_NOT_FOUND_MESSAGE);
 
     return customer;
   }
 
-  update(id: number, updateCustomerDto: UpdateCustomerDto) {
+  async update(id: number, updateCustomerDto: UpdateCustomerDto) {
     return `This action updates a #${id} customer`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} customer`;
   }
 }

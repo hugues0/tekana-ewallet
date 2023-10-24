@@ -5,12 +5,23 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { WalletsService } from 'src/wallets/wallets.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { Repository } from 'typeorm';
 import { CompleteTransactionDto } from './dto/complete-transaction.dto';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
+import {
+  CONTACT_SUPPORT,
+  INSUFFICIENT_FUNDS,
+  INVALID_TRANS_CODE,
+  NOT_FOUND_TRANSACTION_CODE,
+  NOT_FOUND_TRANSACTION_ID,
+} from 'src/shared/constants/ErrorMessages';
 
 @Injectable()
 export class TransactionsService {
@@ -21,7 +32,9 @@ export class TransactionsService {
     private readonly walletsService: WalletsService,
   ) {}
 
-  async create(createTransactionDto: CreateTransactionDto) {
+  async create(
+    createTransactionDto: CreateTransactionDto,
+  ): Promise<Transaction> {
     const { senderWalletId, receiverWalletId, amount, type } =
       createTransactionDto;
     const walletExists = await this.walletsService.findOne(senderWalletId);
@@ -32,9 +45,7 @@ export class TransactionsService {
 
     const newBalance = walletExists.balance - amount;
     if (newBalance < 500) {
-      throw new BadRequestException(
-        'Insufficient funds to complete this transaction',
-      );
+      throw new BadRequestException(INSUFFICIENT_FUNDS);
     }
 
     const prefix: string = type == 'deposit' ? 'DPST' : 'TSFR';
@@ -61,24 +72,18 @@ export class TransactionsService {
       relations: ['receiverWallet'],
     });
     if (!transactionExists)
-      throw new NotFoundException(
-        'transaction with provided verificationCode does not exists',
-      );
+      throw new NotFoundException(NOT_FOUND_TRANSACTION_CODE);
 
     const currentDate = new Date();
 
     if (!(transactionExists.status === 'pending'))
-      throw new BadRequestException(
-        'Sorry this transaction can not be completed, please contact support',
-      );
+      throw new BadRequestException(CONTACT_SUPPORT);
 
     if (
       transactionExists.verificationCodeExpiresAt < currentDate ||
       !(transactionExists.verificationCode === verificationCode.toUpperCase())
     )
-      throw new BadRequestException(
-        'Invalid or expired transaction verification code',
-      );
+      throw new BadRequestException(INVALID_TRANS_CODE);
 
     transactionExists.status = 'completed';
 
@@ -95,23 +100,22 @@ export class TransactionsService {
     );
   }
 
-  findAll() {
-    return `This action returns all transactions`;
+  async findAll(options: IPaginationOptions): Promise<Pagination<Transaction>> {
+    const queryBuilder = this.transactionRepository.createQueryBuilder('c');
+    queryBuilder.orderBy('c.id', 'DESC');
+    return paginate<Transaction>(queryBuilder, options);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
+  async findOne(id: number): Promise<Transaction> {
+    const transaction = await this.transactionRepository.findOne({
+      where: { id },
+      relations: ['senderWallet', 'receiverWallet'],
+    });
+    if (!transaction) throw new NotFoundException(NOT_FOUND_TRANSACTION_ID);
+    return transaction;
   }
 
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} transaction`;
-  }
-
-  generateRandomSixDigits() {
+  generateRandomSixDigits(): number {
     const random = Math.floor(100000 + Math.random() * 900000);
     return random;
   }

@@ -30,7 +30,10 @@ export class Customer extends BaseEntity {
 
   @Exclude()
   @Column({ type: 'varchar', length: 100 })
-  public password: string;
+  password: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: false, default: 'regular' })
+  public role: string;
 
   @Column()
   @CreateDateColumn()
