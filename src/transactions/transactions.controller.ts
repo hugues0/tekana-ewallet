@@ -25,10 +25,12 @@ import { CompleteTransactionDto } from './dto/complete-transaction.dto';
 import { Authguard } from 'src/auth/auth.guard';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { Transaction } from './entities/transaction.entity';
+import { ThrottlerGuard } from '@nestjs/throttler';
+
 @ApiTags('Transactions')
 @Controller('transactions')
 @ApiBearerAuth('access_token')
-@UseGuards(Authguard)
+@UseGuards(Authguard, ThrottlerGuard)
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 

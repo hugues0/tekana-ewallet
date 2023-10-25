@@ -69,7 +69,7 @@ of minimum features as listed
 | `PATCH` (protected)       | `api/v1/transactions/complete-transaction`     | submits transaction verification code and if succesfull sets transaction status to 'completed' and finally adds funds to receiving wallet     | 
 
 
-  - ## Key Business requirements considered & Architecture design choices
+  - ## Key Business considerations & Architecture design choices
 
     - Customer can not perform any other action besides registering and loging in when unauthenticated
     - User are given a default role upon sign up (standard) this is to limit what resources regular customers can access (designed with getting ALL transactions/wallets/customers APIs in mind)
@@ -86,6 +86,7 @@ of minimum features as listed
     - if verification code is valid and status is 'pending' the transaction is updated to completed and funds are now disbursed to reciever wallet
     - A cron job that runs every 7 hours checking for 'failed' or 'pending' transactions whose verification codes expired (basically transfers that did not go through)
     - the cron loads them in chunks (as they could be many) and reverses each transaction by refunding the sender wallet and updating transaction status to 'refunded'
+    - Transacations controller methods are rate limited to 50 requests/min per client as it the most sensitive domain of the application
 
 
  
