@@ -26,7 +26,7 @@ export class CustomersService {
   async findAll(options: IPaginationOptions): Promise<Pagination<Customer>> {
     const queryBuilder = this.customersRepository.createQueryBuilder('c');
     queryBuilder.orderBy('c.id', 'DESC');
-    return paginate<Customer>(queryBuilder, options);
+    return await paginate<Customer>(queryBuilder, options);
   }
 
   /**

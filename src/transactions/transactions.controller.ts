@@ -41,7 +41,12 @@ export class TransactionsController {
     description: 'Invalid transaction request/insufficient funds',
   })
   @Post()
-  async create(@Body() createTransactionDto: CreateTransactionDto) {
+  async create(
+    @Req() request: any,
+    @Body() createTransactionDto: CreateTransactionDto,
+  ) {
+    if (request.user?.id !== createTransactionDto.senderWalletId)
+      throw new ForbiddenException();
     return await this.transactionsService.create(createTransactionDto);
   }
 
@@ -74,7 +79,7 @@ export class TransactionsController {
   ): Promise<Pagination<Transaction>> {
     if (request.user?.role !== 'admin') throw new ForbiddenException();
     limit = limit > 100 ? 100 : limit;
-    return this.transactionsService.findAll({ page, limit });
+    return await this.transactionsService.findAll({ page, limit });
   }
 
   @ApiOkResponse({
@@ -86,7 +91,7 @@ export class TransactionsController {
     description: 'Forbidden resource(s)',
   })
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.transactionsService.findOne(+id);
+  async findOne(@Req() request: any, @Param('id') id: string) {
+    return await this.transactionsService.findOne(+id);
   }
 }

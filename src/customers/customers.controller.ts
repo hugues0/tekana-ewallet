@@ -46,7 +46,7 @@ export class CustomersController {
   ): Promise<Pagination<Customer>> {
     if (request.user?.role !== 'admin') throw new ForbiddenException();
     limit = limit > 100 ? 100 : limit;
-    return this.customersService.findAll({ page, limit });
+    return await this.customersService.findAll({ page, limit });
   }
 
   @ApiOkResponse({
@@ -67,7 +67,7 @@ export class CustomersController {
     @Param('id') id: string,
   ): Promise<Customer> {
     if (request.user?.id !== Number(id)) throw new ForbiddenException();
-    return this.customersService.findOne(+id);
+    return await this.customersService.findOne(+id);
   }
 
   @ApiOkResponse({
@@ -79,12 +79,12 @@ export class CustomersController {
     description: 'Forbidden resource(s)',
   })
   @Patch(':id')
-  update(
+  async update(
     @Req() request: any,
     @Param('id') id: string,
     @Body() updateCustomerDto: UpdateCustomerDto,
   ) {
     if (request.user?.id !== Number(id)) throw new ForbiddenException();
-    return this.customersService.update(+id, updateCustomerDto);
+    return await this.customersService.update(+id, updateCustomerDto);
   }
 }

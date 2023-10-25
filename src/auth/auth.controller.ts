@@ -27,7 +27,7 @@ export class AuthController {
   async create(
     @Body() createCustomerDto: CreateCustomerDto,
   ): Promise<Customer> {
-    return this.authService.register(createCustomerDto);
+    return await this.authService.register(createCustomerDto);
   }
 
   @ApiOkResponse({
@@ -40,6 +40,6 @@ export class AuthController {
   })
   @Post('login')
   async login(@Body() credentials: LoginDto) {
-    return this.authService.login(credentials);
+    return await this.authService.login(credentials);
   }
 }

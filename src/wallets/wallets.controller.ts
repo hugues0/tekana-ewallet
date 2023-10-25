@@ -61,14 +61,14 @@ export class WalletsController {
     description: 'Forbidden resource(s)',
   })
   @Get()
-  findAll(
+  async findAll(
     @Req() request: any,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
   ): Promise<Pagination<Wallet>> {
     if (request.user?.role !== 'admin') throw new ForbiddenException();
     limit = limit > 100 ? 100 : limit;
-    return this.walletsService.findAll({ page, limit });
+    return await this.walletsService.findAll({ page, limit });
   }
 
   @ApiOkResponse({

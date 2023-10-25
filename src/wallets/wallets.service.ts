@@ -61,7 +61,7 @@ export class WalletsService {
     const queryBuilder = this.walletsRepository.createQueryBuilder('c');
     queryBuilder.orderBy('c.id', 'DESC');
 
-    return paginate<Wallet>(queryBuilder, options);
+    return await paginate<Wallet>(queryBuilder, options);
   }
 
   /**

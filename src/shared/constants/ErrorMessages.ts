@@ -17,3 +17,5 @@ export const INVALID_TRANS_CODE =
 export const NOT_FOUND_TRANSACTION_ID =
   'transaction with provided ID does not exists';
 
+export const IDENTICAL_WALLET_ID =
+  'Sender wallet and receiver wallet can not be the same';

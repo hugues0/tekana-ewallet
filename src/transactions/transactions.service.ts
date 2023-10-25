@@ -17,6 +17,7 @@ import {
 } from 'nestjs-typeorm-paginate';
 import {
   CONTACT_SUPPORT,
+  IDENTICAL_WALLET_ID,
   INSUFFICIENT_FUNDS,
   INVALID_TRANS_CODE,
   NOT_FOUND_TRANSACTION_CODE,
@@ -42,6 +43,8 @@ export class TransactionsService {
       receiverWalletId,
     );
 
+    if (senderWalletId == receiverWalletId)
+      throw new BadRequestException(IDENTICAL_WALLET_ID);
     //check if the user has 500 over the rest after completing the transaction
     const newBalance = walletExists.balance - amount;
     if (newBalance < 500) {
